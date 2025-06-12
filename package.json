@@ -1,0 +1,37 @@
+{
+  "name": "study-pulse",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "backend": "nodemon backend/server.js",
+    "frontend": "cd frontend && pnpm run dev",
+    "dev": "concurrently \"pnpm run backend\" \"pnpm run frontend\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.12.1",
+  "dependencies": {
+    "apexcharts": "^4.5.0",
+    "bcryptjs": "^3.0.2",
+    "cloudinary": "^2.6.1",
+    "concurrently": "^9.1.2",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-async-handler": "^1.2.0",
+    "express-formidable": "^1.2.0",
+    "formidable": "^3.5.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.11.0",
+    "multer": "2.0.1",
+    "nodemon": "^3.1.9",
+    "react-apexcharts": "^1.7.0"
+  },
+  "devDependencies": {
+    "vite": "^6.2.6"
+  }
+}

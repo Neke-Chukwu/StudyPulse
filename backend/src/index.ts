@@ -8,21 +8,14 @@ import adminRoutes from './routes/admin';
 import { setupUploadsDirectory } from './utils/setupUploads';
 
 // Load environment variables
-const result = dotenv.config({ path: path.join(__dirname, '../.env') });
+const result = dotenv.config({ path: path.join(__dirname, '../../.env') });
 
 if (result.error) {
   console.error('Error loading .env file:', result.error);
   process.exit(1);
 }
 
-// Debug logging
-console.log('Environment variables loaded:', {
-  NODE_ENV: process.env.NODE_ENV,
-  PORT: process.env.PORT,
-  MONGODB_URI: process.env.MONGODB_URI ? 'Set' : 'Not set',
-  OPENAI_API_KEY: process.env.OPENAI_API_KEY ? 'Set' : 'Not set',
-  JWT_SECRET: process.env.JWT_SECRET ? 'Set' : 'Not set'
-});
+
 
 const app = express();
 

@@ -8,7 +8,7 @@ import adminRoutes from './routes/admin';
 import { setupUploadsDirectory } from './utils/setupUploads';
 
 // Load environment variables
-const result = dotenv.config({ path: path.join(__dirname, '.env') });
+const result = dotenv.config({ path: path.join(__dirname, '../.env') });
 
 if (result.error) {
   console.error('Error loading .env file:', result.error);
@@ -28,7 +28,7 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+  origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
   credentials: true
 }));
 app.use(express.json());

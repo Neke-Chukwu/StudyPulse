@@ -4,8 +4,8 @@
   "description": "StudyPulse - Nursing Education Platform",
   "private": true,
   "scripts": {
-    "backend": "nodemon backend/src/index.ts",
-    "frontend": "cd frontend && pnpm run dev",
+    "backend": "nodemon --exec ts-node backend/src/index.ts",
+    "frontend": "cd frontend && pnpm run start",
     "dev": "concurrently \"pnpm run backend\" \"pnpm run frontend\"",
     "install:all": "pnpm install && cd frontend && pnpm install && cd ../backend && pnpm install"
   },

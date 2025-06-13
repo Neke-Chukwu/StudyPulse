@@ -2,16 +2,35 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { setupUploadsDirectory } from './utils/setupUploads';
+import path from 'path';
 import authRoutes from './routes/auth';
 import adminRoutes from './routes/admin';
+import { setupUploadsDirectory } from './utils/setupUploads';
 
-dotenv.config();
+// Load environment variables
+const result = dotenv.config({ path: path.join(__dirname, '.env') });
+
+if (result.error) {
+  console.error('Error loading .env file:', result.error);
+  process.exit(1);
+}
+
+// Debug logging
+console.log('Environment variables loaded:', {
+  NODE_ENV: process.env.NODE_ENV,
+  PORT: process.env.PORT,
+  MONGODB_URI: process.env.MONGODB_URI ? 'Set' : 'Not set',
+  OPENAI_API_KEY: process.env.OPENAI_API_KEY ? 'Set' : 'Not set',
+  JWT_SECRET: process.env.JWT_SECRET ? 'Set' : 'Not set'
+});
 
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+  credentials: true
+}));
 app.use(express.json());
 
 // Setup uploads directory
@@ -21,14 +40,15 @@ setupUploadsDirectory();
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 
-// Connect to MongoDB
-mongoose
-  .connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/studypulse')
+// MongoDB connection
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/studypulse';
+mongoose.connect(MONGODB_URI)
   .then(() => {
     console.log('Connected to MongoDB');
   })
   .catch((error) => {
     console.error('MongoDB connection error:', error);
+    process.exit(1);
   });
 
 // Start server

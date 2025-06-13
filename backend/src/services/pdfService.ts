@@ -15,6 +15,7 @@ export const parsePDF = async (filePath: string): Promise<string> => {
     // Clean up the text
     const cleanedText = text
       .replace(/\r\n/g, ' ') // Replace line breaks with spaces
+      .replace(/\n/g, ' ') // Replace new line breaks with spaces
       .replace(/\s+/g, ' ') // Replace multiple spaces with single space
       .trim(); // Remove leading/trailing whitespace
 

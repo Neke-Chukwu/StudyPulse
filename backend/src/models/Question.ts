@@ -11,46 +11,42 @@ export interface IQuestion extends Document {
   updatedAt: Date;
 }
 
-const QuestionSchema = new Schema(
-  {
-    type: {
-      type: String,
-      enum: ['mcq', 'theory'],
-      required: true,
-      index: true,
-    },
-    question: {
-      type: String,
-      required: true,
-      text: true, // Enable text search
-    },
-    options: {
-      type: [String],
-      required: function() {
-        return this.type === 'mcq';
-      },
-    },
-    answer: {
-      type: String,
-      required: true,
-      text: true, // Enable text search
-    },
-    topic: {
-      type: String,
-      required: true,
-      index: true,
-    },
-    difficulty: {
-      type: String,
-      enum: ['easy', 'medium', 'hard'],
-      required: true,
-      index: true,
-    },
+const QuestionSchema = new Schema<IQuestion>({
+  type: {
+    type: String,
+    required: true,
+    enum: ['mcq', 'theory'],
+    index: true
   },
-  {
-    timestamps: true,
+  question: {
+    type: String,
+    required: true,
+    index: true
+  },
+  options: {
+    type: [String],
+    required: function(this: IQuestion) {
+      return this.type === 'mcq';
+    }
+  },
+  answer: {
+    type: String,
+    required: true
+  },
+  topic: {
+    type: String,
+    required: true,
+    index: true
+  },
+  difficulty: {
+    type: String,
+    required: true,
+    enum: ['easy', 'medium', 'hard'],
+    index: true
   }
-);
+}, {
+  timestamps: true
+});
 
 // Compound indexes for common queries
 QuestionSchema.index({ topic: 1, type: 1 });

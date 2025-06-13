@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
-import { RootState } from '../store';
+import type { RootState } from '../store';
 import { pageTransition, fadeIn, staggerContainer, listItem } from '../utils/animations';
 import PDFUpload from '../components/PDFUpload';
 

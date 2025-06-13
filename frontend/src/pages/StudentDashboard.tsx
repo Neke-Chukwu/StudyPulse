@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { RootState } from '../store';
+import type { RootState } from '../store';
 import { Link } from 'react-router-dom';
 
 interface Topic {

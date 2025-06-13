@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "backend": "nodemon --exec ts-node backend/src/index.ts",
-    "frontend": "cd frontend && pnpm run start",
+    "frontend": "cd frontend && pnpm run dev",
     "dev": "concurrently \"pnpm run backend\" \"pnpm run frontend\"",
     "install:all": "pnpm install && cd frontend && pnpm install && cd ../backend && pnpm install"
   },
@@ -16,7 +16,7 @@
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^7.0.3",
-    "multer": "^1.4.5-lts.1",
+    "multer": "^2.0.0-rc.3",
     "openai": "^4.0.0",
     "pdf-parse": "^1.1.1"
   },

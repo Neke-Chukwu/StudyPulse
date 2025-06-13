@@ -7,9 +7,8 @@ import cors from 'cors';
 // Utils
 import connectDB from './config/db.js';
 
-
 // Routes
-
+import authRoutes from './routes/authRoutes.js';
 
 // Load environment variables
 dotenv.config();
@@ -36,7 +35,17 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
+app.use('/api/auth', authRoutes);
 
+// Error handling middleware
+app.use((err, req, res, next) => {
+  const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+  res.status(statusCode);
+  res.json({
+    message: err.message,
+    stack: process.env.NODE_ENV === 'production' ? null : err.stack,
+  });
+});
 
 // Start server
 app.listen(port, () => {

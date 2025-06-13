@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
 import { RootState } from '../store';
 import { pageTransition, fadeIn, staggerContainer, listItem } from '../utils/animations';
+import PDFUpload from '../components/PDFUpload';
 
 interface Topic {
   _id: string;
@@ -17,66 +18,40 @@ const AdminDashboard = () => {
   const { user } = useSelector((state: RootState) => state.auth);
   const [topics, setTopics] = useState<Topic[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [uploading, setUploading] = useState(false);
 
-  useEffect(() => {
-    const fetchTopics = async () => {
-      try {
-        // TODO: Implement API call to fetch topics
-        // For now, using sample data
-        setTopics([
-          {
-            _id: '1',
-            name: 'Anatomy and Physiology',
-            questionCount: 50,
-            mcqCount: 35,
-            theoryCount: 15,
-          },
-          {
-            _id: '2',
-            name: 'Medical-Surgical Nursing',
-            questionCount: 75,
-            mcqCount: 50,
-            theoryCount: 25,
-          },
-        ]);
-      } catch (error) {
-        toast.error('Failed to load topics');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTopics();
-  }, []);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && file.type === 'application/pdf') {
-      setSelectedFile(file);
-    } else {
-      toast.error('Please select a PDF file');
+  const fetchTopics = async () => {
+    try {
+      // TODO: Implement API call to fetch topics
+      // For now, using sample data
+      setTopics([
+        {
+          _id: '1',
+          name: 'Anatomy and Physiology',
+          questionCount: 50,
+          mcqCount: 35,
+          theoryCount: 15,
+        },
+        {
+          _id: '2',
+          name: 'Medical-Surgical Nursing',
+          questionCount: 75,
+          mcqCount: 50,
+          theoryCount: 25,
+        },
+      ]);
+    } catch (error) {
+      toast.error('Failed to load topics');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleUpload = async () => {
-    if (!selectedFile) {
-      toast.error('Please select a file first');
-      return;
-    }
+  useEffect(() => {
+    fetchTopics();
+  }, []);
 
-    setUploading(true);
-    try {
-      // TODO: Implement file upload API call
-      await new Promise((resolve) => setTimeout(resolve, 2000)); // Simulated upload
-      toast.success('File uploaded successfully');
-      setSelectedFile(null);
-    } catch (error) {
-      toast.error('Failed to upload file');
-    } finally {
-      setUploading(false);
-    }
+  const handleUploadComplete = () => {
+    fetchTopics(); // Refresh topics after successful upload
   };
 
   if (loading) {
@@ -123,37 +98,7 @@ const AdminDashboard = () => {
           <h3 className="text-lg font-medium text-gray-900 mb-4">
             Upload Study Material
           </h3>
-          <div className="space-y-4">
-            <div className="flex items-center space-x-4">
-              <input
-                type="file"
-                accept=".pdf"
-                onChange={handleFileChange}
-                className="hidden"
-                id="file-upload"
-              />
-              <motion.label
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                htmlFor="file-upload"
-                className="btn-secondary cursor-pointer"
-              >
-                Choose File
-              </motion.label>
-              <span className="text-sm text-gray-500">
-                {selectedFile ? selectedFile.name : 'No file chosen'}
-              </span>
-            </div>
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={handleUpload}
-              disabled={!selectedFile || uploading}
-              className="btn-primary disabled:opacity-50"
-            >
-              {uploading ? 'Uploading...' : 'Upload'}
-            </motion.button>
-          </div>
+          <PDFUpload onUploadComplete={handleUploadComplete} />
         </motion.div>
 
         <motion.div

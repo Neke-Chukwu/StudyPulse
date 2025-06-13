@@ -1,5 +1,5 @@
 import pdfParse from 'pdf-parse';
-import fs from 'fs/promises';
+import { promises as fs } from 'fs';
 
 export const parsePDF = async (filePath: string): Promise<string> => {
   try {
@@ -16,9 +16,9 @@ export const parsePDF = async (filePath: string): Promise<string> => {
     const cleanedText = text
       .replace(/\r\n/g, ' ') // Replace line breaks with spaces
       .replace(/\s+/g, ' ') // Replace multiple spaces with single space
-      .trim();
+      .trim(); // Remove leading/trailing whitespace
 
-    // Delete the uploaded file after processing
+    // Delete the uploaded file
     await fs.unlink(filePath);
 
     return cleanedText;

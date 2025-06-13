@@ -2,36 +2,37 @@ import OpenAI from 'openai';
 import { Question } from '../models/Question';
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 export const generateQuestions = async (content: string): Promise<Partial<Question>[]> => {
   try {
-    // Split content into chunks if it's too long
+    // Split content into chunks to handle large PDFs
     const chunks = splitContentIntoChunks(content, 4000);
-
     const questions: Partial<Question>[] = [];
 
     for (const chunk of chunks) {
       const response = await openai.chat.completions.create({
-        model: "gpt-4",
+        model: 'gpt-4',
         messages: [
           {
-            role: "system",
-            content: `You are an expert nursing educator. Generate multiple-choice and theory questions from the provided content. 
-            For each question, provide:
-            1. The question text
-            2. For MCQs: 4 options and the correct answer
-            3. For theory questions: a detailed answer
-            Format the response as a JSON array of questions.`
+            role: 'system',
+            content: `You are an expert at creating educational questions. Generate multiple-choice and theory questions based on the provided content. 
+            For multiple-choice questions, provide 4 options with one correct answer.
+            For theory questions, provide a detailed answer.
+            Format your response as a JSON array of questions, where each question has:
+            - type: "mcq" or "theory"
+            - question: the question text
+            - options: array of 4 options (for MCQ only)
+            - answer: the correct answer or detailed explanation
+            - topic: the main topic of the question
+            - difficulty: "easy", "medium", or "hard"`,
           },
           {
-            role: "user",
-            content: chunk
-          }
+            role: 'user',
+            content: chunk,
+          },
         ],
-        temperature: 0.7,
-        max_tokens: 2000
       });
 
       const generatedQuestions = JSON.parse(response.choices[0].message.content || '[]');
@@ -46,11 +47,9 @@ export const generateQuestions = async (content: string): Promise<Partial<Questi
 };
 
 const splitContentIntoChunks = (content: string, maxLength: number): string[] => {
+  const sentences = content.match(/[^.!?]+[.!?]+/g) || [];
   const chunks: string[] = [];
   let currentChunk = '';
-
-  // Split content into sentences
-  const sentences = content.match(/[^.!?]+[.!?]+/g) || [];
 
   for (const sentence of sentences) {
     if (currentChunk.length + sentence.length > maxLength) {

@@ -1,25 +1,27 @@
+import { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import type { RootState } from '../store';
+import { useAuth } from '../hooks/useAuth';
 
 interface ProtectedRouteProps {
-  children: React.ReactNode;
-  requiredRole?: 'student' | 'admin';
+  children: ReactNode;
+  requireAdmin?: boolean;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole }) => {
-  const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
+export const ProtectedRoute = ({ children, requireAdmin = false }: ProtectedRouteProps) => {
+  const { isAuthenticated, isLoading, isAdmin } = useAuth();
   const location = useLocation();
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  if (requiredRole && user?.role !== requiredRole) {
-    return <Navigate to="/unauthorized" replace />;
+  if (requireAdmin && !isAdmin) {
+    return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;
-};
-
-export default ProtectedRoute; 
+}; 

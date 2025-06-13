@@ -1,83 +1,74 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { Provider } from 'react-redux';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Layout } from './components/Layout';
+import { ProtectedRoute } from './components/ProtectedRoute';
+import { Login } from './pages/Login';
+import { Register } from './pages/Register';
+import { Quiz } from './pages/Quiz';
+import { Admin } from './pages/Admin';
+import { useAuth } from './hooks/useAuth';
 
-import { store } from './store';
-import ProtectedRoute from './components/ProtectedRoute';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import StudentDashboard from './pages/StudentDashboard';
-import AdminDashboard from './pages/AdminDashboard';
-import Quiz from './pages/Quiz';
-import QuizResults from './pages/QuizResults';
-import TheoryReview from './pages/TheoryReview';
+const queryClient = new QueryClient();
 
-function App() {
+const App = () => {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
   return (
-    <Provider store={store}>
+    <QueryClientProvider client={queryClient}>
       <Router>
-        <div className="min-h-screen bg-gray-50">
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+        <Routes>
+          <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/" />} />
+          <Route path="/register" element={!isAuthenticated ? <Register /> : <Navigate to="/" />} />
+          
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <div className="text-center py-12">
+                    <h1 className="text-4xl font-bold text-gray-900 mb-4">
+                      Welcome to StudyPulse
+                    </h1>
+                    <p className="text-xl text-gray-600">
+                      Your personalized learning platform
+                    </p>
+                  </div>
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
 
-            {/* Protected Student Routes */}
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute requiredRole="student">
-                  <StudentDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/quiz/:topicId"
-              element={
-                <ProtectedRoute requiredRole="student">
+          <Route
+            path="/quiz"
+            element={
+              <ProtectedRoute>
+                <Layout>
                   <Quiz />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/quiz-results/:topicId"
-              element={
-                <ProtectedRoute requiredRole="student">
-                  <QuizResults />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/theory/:topicId"
-              element={
-                <ProtectedRoute requiredRole="student">
-                  <TheoryReview />
-                </ProtectedRoute>
-              }
-            />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
 
-            {/* Protected Admin Routes */}
-            <Route
-              path="/admin"
-              element={
-                <ProtectedRoute requiredRole="admin">
-                  <AdminDashboard />
-                </ProtectedRoute>
-              }
-            />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute requireAdmin>
+                <Layout>
+                  <Admin />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
 
-            {/* Redirect root to dashboard or login */}
-            <Route
-              path="/"
-              element={<Navigate to="/dashboard" replace />}
-            />
-          </Routes>
-          <ToastContainer position="top-right" autoClose={3000} />
-      </div>
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
       </Router>
-    </Provider>
+    </QueryClientProvider>
   );
-}
+};
 
 export default App;

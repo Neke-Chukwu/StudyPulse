@@ -1,40 +1,26 @@
 import { useState } from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { login } from '../store/slices/authSlice';
-import { toast } from 'react-toastify';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useLoginMutation } from '../api/auth';
+import { useAuth } from '../hooks/useAuth';
 
-const Login = () => {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
-  const [isLoading, setIsLoading] = useState(false);
+export const Login = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
-  const dispatch = useDispatch();
+  const { updateUser } = useAuth();
+  const loginMutation = useLoginMutation();
 
-  const from = location.state?.from?.pathname || '/dashboard';
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
+  const from = location.state?.from?.pathname || '/';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-
     try {
-      await dispatch(login(formData));
-      toast.success('Login successful!');
+      const response = await loginMutation.mutateAsync({ email, password });
+      updateUser(response.user);
       navigate(from, { replace: true });
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Login failed');
-    } finally {
-      setIsLoading(false);
+      console.error('Login failed:', error);
     }
   };
 
@@ -45,12 +31,6 @@ const Login = () => {
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Sign in to your account
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Or{' '}
-            <Link to="/register" className="font-medium text-primary-600 hover:text-primary-500">
-              create a new account
-            </Link>
-          </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm -space-y-px">
@@ -63,10 +43,10 @@ const Login = () => {
                 name="email"
                 type="email"
                 required
-                className="input-field rounded-t-md"
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="Email address"
-                value={formData.email}
-                onChange={handleChange}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <div>
@@ -78,27 +58,40 @@ const Login = () => {
                 name="password"
                 type="password"
                 required
-                className="input-field rounded-b-md"
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="Password"
-                value={formData.password}
-                onChange={handleChange}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
             </div>
           </div>
 
+          {loginMutation.isError && (
+            <div className="text-red-500 text-sm text-center">
+              Invalid email or password
+            </div>
+          )}
+
           <div>
             <button
               type="submit"
-              disabled={isLoading}
-              className="btn-primary w-full flex justify-center"
+              disabled={loginMutation.isPending}
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
-              {isLoading ? 'Signing in...' : 'Sign in'}
+              {loginMutation.isPending ? 'Signing in...' : 'Sign in'}
             </button>
+          </div>
+
+          <div className="text-sm text-center">
+            <Link
+              to="/register"
+              className="font-medium text-indigo-600 hover:text-indigo-500"
+            >
+              Don't have an account? Register
+            </Link>
           </div>
         </form>
       </div>
     </div>
   );
-};
-
-export default Login; 
+}; 

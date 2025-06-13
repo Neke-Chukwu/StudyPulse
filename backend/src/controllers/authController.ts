@@ -1,27 +1,33 @@
 import { Request, Response } from 'express';
-import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/User';
 
-export const register = async (req: Request, res: Response): Promise<void> => {
+const register = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password, name, role } = req.body;
+
+    // Input validation
+    if (!email || !password || !name) {
+      res.status(400).json({ message: 'All fields are required' });
+      return;
+    }
+
+    if (password.length < 6) {
+      res.status(400).json({ message: 'Password must be at least 6 characters long' });
+      return;
+    }
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      res.status(400).json({ message: 'User already exists' });
+      res.status(400).json({ message: 'Email already registered' });
       return;
     }
 
-    // Hash password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    // Create new user
+    // Create new user (password hashing is handled by the model)
     const user = new User({
       email,
-      password: hashedPassword,
+      password,
       name,
       role: role || 'student'
     });
@@ -45,29 +51,37 @@ export const register = async (req: Request, res: Response): Promise<void> => {
         role: user.role
       }
     });
-    return;
   } catch (error) {
     console.error('Registration error:', error);
-    res.status(500).json({ message: 'Error registering user' });
-    return;
+    if (error instanceof Error) {
+      res.status(500).json({ message: `Registration failed: ${error.message}` });
+    } else {
+      res.status(500).json({ message: 'Error registering user' });
+    }
   }
 };
 
-export const login = async (req: Request, res: Response): Promise<void> => {
+const login = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
+
+    // Input validation
+    if (!email || !password) {
+      res.status(400).json({ message: 'Email and password are required' });
+      return;
+    }
 
     // Find user
     const user = await User.findOne({ email });
     if (!user) {
-      res.status(401).json({ message: 'Invalid credentials' });
+      res.status(401).json({ message: 'Invalid email or password' });
       return;
     }
 
-    // Check password
-    const isMatch = await bcrypt.compare(password, user.password);
+    // Check password using the model's method
+    const isMatch = await user.comparePassword(password);
     if (!isMatch) {
-      res.status(401).json({ message: 'Invalid credentials' });
+      res.status(401).json({ message: 'Invalid email or password' });
       return;
     }
 
@@ -88,10 +102,14 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         role: user.role
       }
     });
-    return;
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ message: 'Error logging in' });
-    return;
+    if (error instanceof Error) {
+      res.status(500).json({ message: `Login failed: ${error.message}` });
+    } else {
+      res.status(500).json({ message: 'Error logging in' });
+    }
   }
-}; 
+};
+
+export { register, login }; 

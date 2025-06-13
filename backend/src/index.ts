@@ -5,7 +5,9 @@ import dotenv from 'dotenv';
 import path from 'path';
 import authRoutes from './routes/auth';
 import adminRoutes from './routes/admin';
+import quizRoutes from './routes/quizRoutes';
 import { setupUploadsDirectory } from './utils/setupUploads';
+import { errorHandler } from './middleware/errorHandler';
 
 // Load environment variables
 const result = dotenv.config({ path: path.join(__dirname, '../../.env') });
@@ -14,8 +16,6 @@ if (result.error) {
   console.error('Error loading .env file:', result.error);
   process.exit(1);
 }
-
-
 
 const app = express();
 
@@ -32,6 +32,10 @@ setupUploadsDirectory();
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/quiz', quizRoutes);
+
+// Error handling middleware
+app.use(errorHandler);
 
 // MongoDB connection
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/studypulse';

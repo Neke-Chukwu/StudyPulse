@@ -1,7 +1,7 @@
 import pdfParse from 'pdf-parse';
 import { promises as fs } from 'fs';
 
-export const parsePDF = async (filePath: string): Promise<string> => {
+const parsePDF = async (filePath: string): Promise<string> => {
   try {
     // Read the PDF file
     const dataBuffer = await fs.readFile(filePath);
@@ -27,4 +27,6 @@ export const parsePDF = async (filePath: string): Promise<string> => {
     console.error('Error parsing PDF:', error);
     throw new Error('Failed to parse PDF');
   }
-}; 
+};
+
+export { parsePDF }; 

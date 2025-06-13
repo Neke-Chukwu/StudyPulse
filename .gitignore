@@ -1,2 +1,4 @@
 node_modules
 cd frontend/node_modules
+cd backend/node_modules
+cd backend/.env

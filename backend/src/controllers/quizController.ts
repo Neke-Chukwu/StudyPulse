@@ -31,7 +31,11 @@ const generateQuiz = async (req: Request, res: Response): Promise<void> => {
 const submitQuiz = async (req: Request, res: Response): Promise<void> => {
   try {
     const { answers, timeSpent } = req.body;
-    const userId = new Types.ObjectId(req.user.id);
+    if (!req.user) {
+      res.status(401).json({ message: 'User not authenticated' });
+      return;
+    }
+    const userId = new Types.ObjectId(req.user!.id);
 
     if (!Array.isArray(answers) || answers.length === 0) {
       res.status(400).json({ message: 'Invalid answers format' });
@@ -48,7 +52,11 @@ const submitQuiz = async (req: Request, res: Response): Promise<void> => {
 
 const getAnalytics = async (req: Request, res: Response): Promise<void> => {
   try {
-    const userId = new Types.ObjectId(req.user.id);
+    if (!req.user) {
+      res.status(401).json({ message: 'User not authenticated' });
+      return;
+    }
+    const userId = new Types.ObjectId(req.user!.id);
     const quizAnalytics = await getQuizAnalytics(userId);
     const questionAnalytics = await getQuestionAnalytics(userId);
 
